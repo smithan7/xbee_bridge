@@ -31,9 +31,9 @@ class XBee(object):
 
     if self.com_type == 'ground_station':
         ### Setup publishers, in reality this is what the ground station subscribes to
-        self.pub_request_work = rospy.Publisher('/xbee/dmcts_master/request_work', DMCTS_Request_Work, queue_size=10) # Agent attempts to complete work by notifying ground station
-        self.pub_loc = rospy.Publisher('/xbee/dmcts_master/loc', DMCTS_Loc, queue_size=10) # Publish my location, largely for the ground station to plot a display
-        self.pub_request_task_list = rospy.Publisher('/xbee/dmcts_master/request_task_list', DMCTS_Request_Task_List, queue_size=10) # Ask the ground station for the task list
+        self.pub_request_work = rospy.Publisher('/dmcts_master/request_work', DMCTS_Request_Work, queue_size=10) # Agent attempts to complete work by notifying ground station
+        self.pub_loc = rospy.Publisher('/dmcts_master/loc', DMCTS_Loc, queue_size=10) # Publish my location, largely for the ground station to plot a display
+        self.pub_request_task_list = rospy.Publisher('/dmcts_master/request_task_list', DMCTS_Request_Task_List, queue_size=10) # Ask the ground station for the task list
         
         ### Setup subscribers, in reality this is what the ground station publishes
         self.sub_pulse = rospy.Subscriber('/dmcts_master/pulse', DMCTS_Pulse, self.broadcast_pulse_callback) # agent recieves pulse from ground station and other agents notifiyng them of time
@@ -42,10 +42,10 @@ class XBee(object):
         
     elif self.com_type == 'agent':
         ### Setup Publishers, in reality this is what the agent subscribes to
-        self.pub_pulse = rospy.Publisher('/xbee/dmcts_master/pulse', DMCTS_Pulse, queue_size=10) # Tell the agents the time
-        self.pub_task_list = rospy.Publisher('/xbee/dmcts_master/task_list', DMCTS_Task_List, queue_size=10) # Ground station tells agents which tasks are active and what their reward structure is
-        self.pub_coordination = rospy.Publisher('/xbee/dmcts_master/coordination', DMCTS_Coordination, queue_size=10) # how agents coordinate with eachother
-        self.pub_work_status = rospy.Publisher('/xbee/dmcts_master/work_status', DMCTS_Work_Status, queue_size=10) # Ground station tells agent if work / task is completed
+        self.pub_pulse = rospy.Publisher('/dmcts_master/pulse', DMCTS_Pulse, queue_size=10) # Tell the agents the time
+        self.pub_task_list = rospy.Publisher('/dmcts_master/task_list', DMCTS_Task_List, queue_size=10) # Ground station tells agents which tasks are active and what their reward structure is
+        self.pub_coordination = rospy.Publisher('/dmcts_master/coordination', DMCTS_Coordination, queue_size=10) # how agents coordinate with eachother
+        self.pub_work_status = rospy.Publisher('/dmcts_master/work_status', DMCTS_Work_Status, queue_size=10) # Ground station tells agent if work / task is completed
         
         ## Setup Subscribers, in reality, this is what the agent publishes
         self.sub_request_work = rospy.Subscriber('/dmcts_master/request_work', DMCTS_Request_Work, self.broadcast_request_work_callback) # agent attempts to work on a task
@@ -161,7 +161,7 @@ class XBee(object):
                     #rospy.logerr("FOUND $$$$")
                     data = self.ser.read()
                     msg = ''
-                    while True:
+                    while True: ## Search for EOL - end of line '/n'
                         if data == "\n":
                             #rospy.logerr("Found: eo")
                             break
