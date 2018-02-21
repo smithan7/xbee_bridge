@@ -382,8 +382,8 @@ class XBee(object):
     msg = msg[5:]
     comma = msg[0]
     msg = msg[1:]
-    status = int(msg[0:2])
-    msg = msg[2:]
+    status = int(msg[0:1])
+    msg = msg[1:]
     n_active_tasks = int(msg[0:3]) # 3 digits for node index, allows 0-999 nodes
     self.publish_pulse(agent_index, c_time, n_active_tasks, status)
     
