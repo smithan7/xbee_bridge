@@ -374,18 +374,14 @@ class XBee(object):
     self.publish_pulse(agent_index, c_time, n_active_tasks)
 
   def read_pulse_chatter(self, msg):
-    rospy.logerr("pulse_chatter: " + msg)
     agent_index = int(msg[0:2]) # 2 digits for agent index, allows 0-99 agents
-    rospy.logerr("ai: %i", agent_index)
     msg = msg[2:]
     comma = msg[0]
     msg = msg[1:]
     c_time = float(msg[0:5]) / 10.0 # 5 digits for time, allows time 0.0-9999.9 seconds (166 min and 39.9 sec)
-    rospy.logerr("t: %0.2f", c_time)
     msg = msg[5:]
     comma = msg[0]
     msg = msg[1:]
-    rospy.logerr("st msg: " + msg)
     status = int(msg[0:1])
     msg = msg[1:]
     comma = msg[0]
