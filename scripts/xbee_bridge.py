@@ -401,8 +401,8 @@ class XBee(object):
     broadcast = '$p'
     broadcast = broadcast + self.set_string_length(str(self.agent_index),2) + ','
     broadcast = broadcast + self.set_string_length(str(int(msg.c_time * 10.0)), 5) + ','
-    broadcast = broadcast + self.set_string_length(str(msg.status),1) + ','
-    broadcast = broadcast + str(msg.n_active_tasks)    
+    broadcast = broadcast + str(msg.status) + ','
+    broadcast = broadcast + self.set_string_length(str(msg.n_active_tasks),3)    
     self.xbee_broadcast(broadcast)
 
   def read_location_msg(self):
