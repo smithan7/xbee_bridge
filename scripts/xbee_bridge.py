@@ -382,22 +382,26 @@ class XBee(object):
     msg = msg[5:]
     comma = msg[0]
     msg = msg[1:]
+    status = int(msg[0:2])
+    msg = msg[2:]
     n_active_tasks = int(msg[0:3]) # 3 digits for node index, allows 0-999 nodes
-    self.publish_pulse(agent_index, c_time, n_active_tasks)
+    self.publish_pulse(agent_index, c_time, n_active_tasks, status)
     
-  def publish_pulse(self, agent_index, c_time, n_active_tasks):
+  def publish_pulse(self, agent_index, c_time, n_active_tasks, status):
     # This is the pulse from all of the other agents being echoed back
     msg = DMCTS_Pulse()
     msg.my_index = agent_index
     msg.c_time = c_time
     msg.n_active_tasks = n_active_tasks
+    msg.status = status
     self.pub_pulse.publish(msg) # this is from the XBee to the agent
     
   def broadcast_pulse_callback(self, msg):
     # This sends the pulse out to the agents over Xbee
     broadcast = '$p'
-    broadcast = broadcast + str(self.agent_index) + ','
+    broadcast = broadcast + self.set_string_length(str(self.agent_index),2) + ','
     broadcast = broadcast + self.set_string_length(str(int(msg.c_time * 10.0)), 5) + ','
+    broadcast = broadcast + self.set_string_length(str(msg.status),1) + ','
     broadcast = broadcast + str(msg.n_active_tasks)    
     self.xbee_broadcast(broadcast)
 
