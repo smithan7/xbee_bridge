@@ -388,6 +388,8 @@ class XBee(object):
     rospy.logerr("st msg: " + msg)
     status = int(msg[0:1])
     msg = msg[1:]
+    comma = msg[0]
+    msg = msg[1:]
     n_active_tasks = int(msg[0:3]) # 3 digits for node index, allows 0-999 nodes
     self.publish_pulse(agent_index, c_time, n_active_tasks, status)
     
