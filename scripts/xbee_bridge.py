@@ -418,7 +418,7 @@ class XBee(object):
     comma = self.ser.read()
     edge_y = int(self.ser.read(3)) # 3 digits for node index, allows 0-999 nodes
     comma = self.ser.read()
-    status = self.ser.read(1) # 1 char for agent and world status, allows all chars as possible status nodes
+    status = int(self.ser.read(1)) # 1 char for agent and world status, allows all chars as possible status nodes
     self.publish_location(index,x,y,edge_x,edge_y,status)
 
   def read_location_chatter(self, msg):
