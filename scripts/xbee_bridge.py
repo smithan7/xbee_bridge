@@ -173,7 +173,6 @@ class XBee(object):
                     break
             tp = msg[0]
             msg = msg[1:]
-
             if self.com_type == 'ground_station':
                 ### Location Message
                 if tp == 'l':
@@ -186,8 +185,7 @@ class XBee(object):
                     # This is right, the message is empty!!!
                     self.publish_request_for_task_list()
                 elif tp == 'c' or tp == 'p' or tp == 's' or tp == 't':
-                    a = 7
-                    #rospy.loginfo("Xbee_Bridge::ground_station got agent message: " + tp)
+                    rospy.logwarn("Xbee_Bridge::ground_station got agent message: " + tp)
                 ### Message was invalid
                 else:
                     rospy.logwarn("XBee Bridge::Bad ground_station Message type: " + tp)
@@ -208,53 +206,10 @@ class XBee(object):
                     self.read_task_list_chatter(msg)
                 ### Message was for agent
                 elif tp == 'l' or tp == 'w' or tp == 'r':
-                    a = 7
-                    #rospy.loginfo("Xbee_Bridge::Agent got ground station message: " + tp)
+                    rospy.loginfo("Xbee_Bridge::Agent got ground station message: " + tp)
                 ### Message was invalid    
                 else:
                     rospy.logwarn("XBee Bridge::Bad agent Message type: " + tp)
-
-            # tp = self.ser.read()
-            
-            # if self.com_type == 'ground_station':
-            #     ### Location Message
-            #     if tp == 'l':
-            #         self.read_location_msg()
-            #     ### Work Request message, this is from an agent to the ground station to request work on a node
-            #     elif tp == 'w':
-            #         self.read_work_request_msg()
-            #     ### Get Task List, request list of active tasks from the coordinator
-            #     elif tp == 'r':
-            #         # This is right, the message is empty!!!
-            #         self.publish_request_for_task_list()
-            #     elif tp == 'c' or tp == 'p' or tp == 's' or tp == 't':
-            #         a = 7
-            #         #rospy.loginfo("Xbee_Bridge::ground_station got agent message: " + tp)
-            #     ### Message was invalid
-            #     else:
-            #         rospy.logwarn("XBee Bridge::Bad ground_station Message type: " + tp)
-
-            # elif self.com_type == 'agent':
-            #     ### Coordination Message
-            #     if tp == 'c':
-            #         self.read_coordination_msg()
-            #     ### Pulse message, this is from the ground station providing the clock and number of active nodes
-            #     elif tp == 'p':
-            #         self.read_pulse_msg()
-            #     ### Work Status message, from the ground station to the agent telling if work was successful or not
-            #     elif tp == 's':
-            #         self.read_work_status_msg()
-            #     ### Transmitted Task List, recieve list of active tasks from the coordinator
-            #     elif tp == 't':
-            #         self.read_task_list_msg()
-            #     ### Message was for agent
-            #     elif tp == 'l' or tp == 'w' or tp == 'r':
-            #         a = 7
-            #         #rospy.loginfo("Xbee_Bridge::Agent got ground station message: " + tp)
-            #     ### Message was invalid    
-            #     else:
-            #         rospy.logwarn("XBee Bridge::Bad agent Message type: " + tp)
-
 
   def publish_request_for_task_list(self):
     # This tells the coordinator node that an agent has requested the task list
