@@ -1,15 +1,9 @@
 #!/usr/bin/env python
 
-
-import rospy, math
-import numpy as np
+import rospy
 import sys, termios, tty, select, os
 from std_msgs.msg import String
-
-from geometry_msgs.msg import Pose
-from nav_msgs.msg import Odometry
 from sensor_msgs.msg import NavSatFix
-
 import serial
 
 class XBee(object):
@@ -18,10 +12,10 @@ class XBee(object):
   def __init__(self, com_port, baud_rate, com_type, fake_agent):
     
     self.fake_agent = fake_agent # Fake agent is only used when I am NOT using the XBEE but am instead publishing to a topic in ROS instead, useful for early debuggin
-    self.com_type = com_type # am I the broadcaster  (i.e., the agent transmitting their location) or reciever (i.e., the one recieving the broadcaster's location)
+    self.com_type = com_type # am I the broadcaster  (i.e., the agent transmitting their location) or receiver (i.e., the one recieving the broadcaster's location)
 
     if self.fake_agent: # I am a fake agent, setup publisher/subscriber instead of Xbee
-        if self.com_type == 'reciever':
+        if self.com_type == 'receiver':
             self.pub_chatter = rospy.Publisher('/xbee/chatter', String, queue_size=10) # Publish over a topic instead of out over xbee
         elif self.com_type == 'broadcaster':    
             self.sub_chatter = rospy.Subscriber('/xbee/chatter', String, self.xbee_chatter_callback) # Sub to topic
@@ -33,14 +27,14 @@ class XBee(object):
         self.ser = serial.Serial(com_port, baud_rate)#'/dev/ttyUSB0',9600)  # open serial port
         self.xbee_broadcast('hello') # write a string as a test
 
-    if self.com_type == 'reciever': # I am the reciever, setup my publisher that forwards what my XBee recieves so I can publish it to ROS
+    if self.com_type == 'receiver': # I am the receiver, setup my publisher that forwards what my XBee recieves so I can publish it to ROS
         ### Setup publishers, in reality this is what the ground station subscribes to
-        self.pub_odom = rospy.Publisher('/target_odom', Odometry, queue_size=10) # Location of the the broadcasting agent
+        self.pub_odom = rospy.Publisher('/target_odom', NavSatFix, queue_size=10) # Location of the the broadcasting agent
         
     elif self.com_type == 'broadcaster': # I am the broadcaster, setup my subscriber that recieves messages from ROS and sends them out over the XBee
         ## Setup Subscriber, in reality, this is what the agent publishes
         self.check_xbee = rospy.Timer(rospy.Duration(0.1), self.xbee_timer_callback) # check the Xbee for messages ever X seconds ~ x = Duration specified in seconds
-        self.sub_odom = rospy.Subscriber('/odom', Odometry, self.odom_callback) # agent location
+        self.sub_odom = rospy.Subscriber('/dji_sdk/global_position', NavSatFix, self.odom_callback) # agent location
     
     else:
         while True: # the com type was invalid
@@ -167,24 +161,23 @@ class XBee(object):
   def broadcast_location_callback(self, msg):
     # Another ros node published to odom, broadcast it out over the XBee
     broadcast = '$l'
-    broadcast = broadcast + self.set_string_length(str(int((msg.latitude) * 1000000.0)), 12) + ',' # 12 digits should be enough
-    broadcast = broadcast + self.set_string_length(str(int((msg.longitude) * 1000000.0)), 12) # 12 digits should be enough
+    broadcast = broadcast + self.set_string_length(str(int(msg.latitude * 1000000.0)), 12) + ',' # 12 digits should be enough
+    broadcast = broadcast + self.set_string_length(str(int(msg.longitude * 1000000.0)), 12) # 12 digits should be enough
     self.xbee_broadcast(broadcast)
 
   def set_string_length(self, str_in, length):
-    # This appends '0' 's to the string to make it the right length
+    # This appends '0' 's to the front of the string to make it the right length
     temp_0 = length - len(str_in)
     for i in range(0, temp_0):
        str_in = '0' + str_in
     return str_in
-              
-        
+                   
 if __name__ == '__main__':
   rospy.init_node('XBee_Bridge') # initialize the node
   
   com_port = rospy.get_param('com_port') # get com port name, something like dev/USB0
   baud_rate = rospy.get_param('baud_rate') # from xbee ~9600,~57600
-  com_type = rospy.get_param('com_type') # this is EITHER 'reciever' OR 'broadcaster'
+  com_type = rospy.get_param('com_type') # this is EITHER 'receiver' OR 'broadcaster'
   fake_agent = rospy.get_param('fake_agent') # am I actually using XBees or am I testing w/o XBees? If I try to launch XBee w/o it being plugged in it will fail
 
   rospy.loginfo("XBee Bridge::initializing")

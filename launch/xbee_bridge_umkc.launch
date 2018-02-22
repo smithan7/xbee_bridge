@@ -4,9 +4,7 @@
 	<node pkg="xbee_bridge" name="xbee" type="xbee_bridge_UMKC.py" output="screen"/>
     <param name="com_port" value="/dev/ttyUSB0"/>
     <param name="baud_rate" value="9600"/>
-    <param name="com_type" value="reciever"/>
+    <param name="com_type" value="receiver"/>
     <!--param name="com_type" value="broadcaster"/-->
     <param name="fake_agent" value="false"/>
 </launch>
-
-
