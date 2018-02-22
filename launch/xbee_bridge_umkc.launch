@@ -2,6 +2,7 @@
 
 <launch>
 	<node pkg="xbee_bridge" name="xbee" type="xbee_bridge_UMKC.py" output="screen"/>
+    <!-- use 'ls /dev' in terminal to get a list of all hooked up devices /-->
     <param name="com_port" value="/dev/ttyUSB0"/>
     <param name="baud_rate" value="9600"/>
     <param name="com_type" value="receiver"/>
