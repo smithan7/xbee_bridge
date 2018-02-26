@@ -1,8 +1,6 @@
-
-
 <launch>
 	<node pkg="xbee_bridge" name="xbee" type="xbee_bridge.py" output="screen"/>
-	<param name="/use_sim_time" value="false"/>
+	<!--param name="/use_sim_time" value="false"/-->
 </launch>
 
 

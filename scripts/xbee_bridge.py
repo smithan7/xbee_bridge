@@ -25,9 +25,13 @@ class XBee(object):
         self.pub_chatter = rospy.Publisher('/xbee/chatter', String, queue_size=10) # Publish over a topic instead of out over xbee
         self.sub_chatter = rospy.Subscriber('/xbee/chatter', String, self.xbee_chatter_callback) # Sub to topic
     else:
-        self.check_xbee = rospy.Timer(rospy.Duration(1.0), self.xbee_callback) # check the Xbee for messages
-        self.ser = serial.Serial(com_port, baud_rate)#'/dev/ttyUSB0',9600)  # open serial port
-        self.xbee_broadcast('hello') # write a string
+        try:
+            self.check_xbee = rospy.Timer(rospy.Duration(1.0), self.xbee_callback) # check the Xbee for messages
+            self.ser = serial.Serial(com_port, baud_rate)#'/dev/ttyUSB0',9600)  # open serial port
+            self.xbee_broadcast('hello') # write a string
+        except:
+            rospy.logwarn("XBee_Bridge::could not initialize Xbee")
+            rospy.sleep(rospy.Duration(3.0))
 
     if self.com_type == 'ground_station':
         ### Setup publishers, in reality this is what the ground station subscribes to
