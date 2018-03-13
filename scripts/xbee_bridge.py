@@ -358,7 +358,7 @@ class XBee(object):
         comma = self.ser.read()
         a_index = int(self.ser.read(2)) # 2 digits for agent index, 0-99 agents
         comma = self.ser.read()
-        a_type = self.ser.read(2)) # 2 digits for agent types, 0-99 agent types
+        a_type = int(self.ser.read(2)) # 2 digits for agent types, 0-99 agent types
         self.publish_request_work(n_index, a_index, a_type)
     except:
         # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
@@ -374,7 +374,7 @@ class XBee(object):
         msg = msg[2:]
         comma = msg[0]
         msg = msg[1:]
-        a_type = int(msg[0:2]
+        a_type = int(msg[0:2])
         self.publish_request_work(n_index, a_index, a_type)
     except:
         # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
