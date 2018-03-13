@@ -356,8 +356,10 @@ class XBee(object):
     try:
         n_index = int(self.ser.read(3)) # 3 digits for node index, allows 0-999 nodes
         comma = self.ser.read()
-        a_index = int(self.ser.read(2)) # 1 digit for agent type, 0-9 agent types    
-        self.publish_request_work(n_index, a_index)
+        a_index = int(self.ser.read(2)) # 2 digits for agent index, 0-99 agents
+        comma = self.ser.read()
+        a_type = self.ser.read(2)) # 2 digits for agent types, 0-99 agent types
+        self.publish_request_work(n_index, a_index, a_type)
     except:
         # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
         rospy.logwarn("XBee_Bridge::Failed to read work request msg")
@@ -369,18 +371,23 @@ class XBee(object):
         comma = msg[0]
         msg = msg[1:]
         a_index = int(msg[0:2]) # 2 digits for agent index, 0-99 agents    
-        self.publish_request_work(n_index, a_index)
+        msg = msg[2:]
+        comma = msg[0]
+        msg = msg[1:]
+        a_type = int(msg[0:2]
+        self.publish_request_work(n_index, a_index, a_type)
     except:
         # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
         rospy.logwarn("XBee_Bridge::Failed to read work request chatter msg " + msg)
 
 
-  def publish_request_work(self, n_index, a_index):
+  def publish_request_work(self, n_index, a_index, a_type):
     try:
         # This tells the coordinator that an agent is trying to do some work
         msg = DMCTS_Request_Work()
         msg.a_index = a_index;
         msg.n_index = n_index
+        msg.a_type = a_type;
         self.pub_request_work.publish(msg)
     except:
         # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
@@ -392,6 +399,7 @@ class XBee(object):
         broadcast = '$w'
         broadcast = broadcast + self.set_string_length(str(msg.n_index), 3) + ',' # 3 digits for node index, allows 0-999 nodes
         broadcast = broadcast + self.set_string_length(str(msg.a_index), 2) + ',' # 2 digits for agent index, allows 0-99 agents
+        broadcast = broadcast + self.set_string_length(str(msg.a_type), 2) + ',' # 2 digits for agent type, allows 0-99 agent types
         self.xbee_broadcast(broadcast)        
     except:
         # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
