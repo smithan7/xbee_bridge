@@ -26,7 +26,7 @@ class XBee(object):
         self.sub_chatter = rospy.Subscriber('/xbee/chatter', String, self.xbee_chatter_callback) # Sub to topic
     else:
         try:
-            self.check_xbee = rospy.Timer(rospy.Duration(1.0), self.xbee_callback) # check the Xbee for messages
+            self.check_xbee = rospy.Timer(rospy.Duration(1), self.xbee_callback) # check the Xbee for messages
             self.ser = serial.Serial(com_port, baud_rate)#'/dev/ttyUSB0',9600)  # open serial port
             self.xbee_broadcast('hello') # write a string
         except:
@@ -84,11 +84,11 @@ class XBee(object):
                 if not self.initialized and self.ser.is_open:
                     self.initialized = True
                     rospy.loginfo("XBee Bridge:: initialized serial port on %s", self.ser.name)
-
+            rospy.logerr("msg: ", msg)
             self.ser.write(msg);
     except:
         # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
-        rospy.logwarn("XBee_Bridge::Failed in xbee broadcast")
+        rospy.logwarn("XBee_Bridge::Failed in xbee broadcast: " + msg)
 
   def xbee_chatter_callback(self, msg):
     try:
