@@ -641,11 +641,20 @@ class XBee(object):
   def set_string_length(self, str_in, length):
     try:
         # This appends '0' 's to the string to make it the right length
-        temp_0 = length - len(str_in)
-        for i in range(0, temp_0):
-           str_in = '0' + str_in
-           
-        return str_in
+        if str_in[0] == '-':
+            str_in = str_in[1:]
+            temp_0 = length - len(str_in) - 1
+            for i in range(0, temp_0):
+                str_in = '0' + str_in
+                
+            str_in = '-' + str_in
+            return str_in    
+        else:
+            temp_0 = length - len(str_in)
+            for i in range(0, temp_0):
+               str_in = '0' + str_in
+               
+            return str_in
     except:
         # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
         rospy.logwarn("XBee_Bridge::Failed to set string length")
