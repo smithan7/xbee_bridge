@@ -84,7 +84,7 @@ class XBee(object):
                 if not self.initialized and self.ser.is_open:
                     self.initialized = True
                     rospy.loginfo("XBee Bridge:: initialized serial port on %s", self.ser.name)
-            rospy.logerr("msg: ", msg)
+            
             self.ser.write(msg);
     except:
         # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
@@ -464,7 +464,7 @@ class XBee(object):
         self.xbee_broadcast(broadcast)
     except:
         # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
-        rospy.logwarn("XBee_Bridge::Failed to broadcast pulse msg " + msg)
+        rospy.logwarn("XBee_Bridge::Failed to broadcast pulse msg ")
 
 
   def read_location_msg(self):
