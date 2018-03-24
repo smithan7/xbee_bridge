@@ -184,6 +184,7 @@ class XBee(object):
                                 data = self.ser.read()
                         rospy.logerr("XBee_Bridge:: msg: " + msg)
                         break
+                rospy.logerr("XBee Bridge::xbee callback: got msg: " + msg)
                 tp = msg[0]
                 msg = msg[1:]
                 if self.com_type == 'ground_station':
