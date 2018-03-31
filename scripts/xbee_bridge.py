@@ -20,6 +20,9 @@ class XBee(object):
     self.fake_agent = fake_agent
     self.agent_index = agent_index
     self.com_type = com_type
+    self.old_coord_msg = DMCTS_Coordination()
+    self.last_coord_sent_time = rospy.Time.now()
+    self.last_coord_send_dur = rospy.Duration(3.0)
 
     self.pub_chatter = rospy.Publisher('/xbee/chatter', String, queue_size=10) # Publish over a topic instead of out over xbee
 
@@ -627,20 +630,48 @@ class XBee(object):
 
 
   def broadcast_coordination_callback(self, msg):
-    try:
-        broadcast = "$c"
-        broadcast = broadcast + self.set_string_length(str(len(msg.claimed_tasks)),3) + ","
-        broadcast = broadcast + self.set_string_length(str(msg.agent_index),2) + ","
-        for i in range(0,len(msg.claimed_tasks)):
-            broadcast = broadcast + self.set_string_length(str(msg.claimed_tasks[i]),3) + ","
-            broadcast = broadcast + self.set_string_length(str(int(msg.claimed_time[i]*10.0)),5) + ","
-            broadcast = broadcast + self.set_string_length(str(int(msg.claimed_probability[i]*100.0)),3) + ","
-        self.xbee_broadcast(broadcast)
-    except:
-        # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
-        rospy.logwarn("XBee_Bridge::Failed to broadcast coordination msg")
+    if not self.check_if_new_coord_msg(msg):
+        return
+    else:
+        try:
+            broadcast = "$c"
+            broadcast = broadcast + self.set_string_length(str(len(msg.claimed_tasks)),3) + ","
+            broadcast = broadcast + self.set_string_length(str(msg.agent_index),2) + ","
+            for i in range(0,len(msg.claimed_tasks)):
+                broadcast = broadcast + self.set_string_length(str(msg.claimed_tasks[i]),3) + ","
+                broadcast = broadcast + self.set_string_length(str(int(msg.claimed_time[i]*10.0)),5) + ","
+                broadcast = broadcast + self.set_string_length(str(int(msg.claimed_probability[i]*100.0)),3) + ","
+            self.xbee_broadcast(broadcast)
+        except:
+            # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
+            rospy.logwarn("XBee_Bridge::Failed to broadcast coordination msg")
 
-
+  def check_if_new_coord_msg(self, msg):
+    if rospy.Time.now() - self.last_coord_sent_time > self.last_coord_send_dur:
+        self.last_coord_sent_time = rospy.Time.now()
+        self.old_coord_msg = msg
+        return True
+    if len(msg.claimed_tasks) != len(self.old_coord_msg.claimed_tasks):
+        self.last_coord_sent_time = rospy.Time.now()
+        self.old_coord_msg = msg
+        return True
+    
+    for i in range(0,len(msg.claimed_tasks)):
+        if msg.claimed_tasks[i] != self.old_coord_msg.claimed_tasks[i]:
+            self.last_coord_sent_time = rospy.Time.now()
+            self.old_coord_msg = msg
+            return True
+        if abs(msg.claimed_time[i] - self.old_coord_msg.claimed_time[i]) > 0.5:
+            self.last_coord_sent_time = rospy.Time.now()
+            self.old_coord_msg = msg
+            return True
+        if abs(msg.claimed_probability[i] - self.old_coord_msg.claimed_probability[i]) > 0.05:
+            self.last_coord_sent_time = rospy.Time.now()
+            self.old_coord_msg = msg
+            return True
+    
+    return False
+  
   def set_string_length(self, str_in, length):
     try:
         # This appends '0' 's to the string to make it the right length
