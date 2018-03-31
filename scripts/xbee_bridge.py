@@ -21,10 +21,12 @@ class XBee(object):
     self.agent_index = agent_index
     self.com_type = com_type
 
+    self.pub_chatter = rospy.Publisher('/xbee/chatter', String, queue_size=10) # Publish over a topic instead of out over xbee
+
     if self.fake_agent:
-        self.pub_chatter = rospy.Publisher('/xbee/chatter', String, queue_size=10) # Publish over a topic instead of out over xbee
         self.sub_chatter = rospy.Subscriber('/xbee/chatter', String, self.xbee_chatter_callback) # Sub to topic
     else:
+    
         self.ser = serial.Serial(com_port, baud_rate)#'/dev/ttyUSB0',9600)  # open serial port
         try:
             self.check_xbee = rospy.Timer(rospy.Duration(1), self.xbee_callback) # check the Xbee for messages
@@ -70,7 +72,6 @@ class XBee(object):
     try:
         if self.fake_agent:
             self.pub_chatter.publish(msg)
-
         else:
             msg = msg + '\n'
             if not self.ser.is_open:
@@ -86,6 +87,7 @@ class XBee(object):
                     rospy.loginfo("XBee Bridge:: initialized serial port on %s", self.ser.name)
             
             self.ser.write(msg);
+            self.pub_chatter.publish(msg)
     except:
         # For some reason the above code broke and failed to work, provide error msg without killing the node, this is normally because a non-number was tried to turn into a float; e.g. float(89,123) or float($l123)
         rospy.logwarn("XBee_Bridge::Failed in xbee broadcast: " + msg)
