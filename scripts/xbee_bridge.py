@@ -187,9 +187,9 @@ class XBee(object):
                                 #rospy.loginfo('Data: ' + data + ' and msg: ' + msg)
                                 msg = msg + data
                                 data = self.ser.read()
-                        rospy.logerr("XBee_Bridge:: msg: " + msg)
+                        #rospy.logerr("XBee_Bridge:: msg: " + msg)
                         break
-                rospy.logerr("XBee Bridge::xbee callback: got msg: " + msg)
+                #rospy.logerr("XBee Bridge::xbee callback: got msg: " + msg)
                 tp = msg[0]
                 msg = msg[1:]
                 if self.com_type == 'ground_station':
@@ -204,10 +204,12 @@ class XBee(object):
                         # This is right, the message is empty!!!
                         self.publish_request_for_task_list()
                     elif tp == 'c' or tp == 'p' or tp == 's' or tp == 't':
-                        rospy.logwarn("Xbee_Bridge::ground_station got agent message: " + tp)
+                        a=7
+                        #rospy.logwarn("Xbee_Bridge::ground_station got agent message: " + tp)
                     ### Message was invalid
                     else:
-                        rospy.logwarn("XBee Bridge::Bad ground_station Message type: " + tp)
+                        a=7
+                        #rospy.logwarn("XBee Bridge::Bad ground_station Message type: " + tp)
 
                 elif self.com_type == 'agent':
                     ### Coordination Message
@@ -221,11 +223,12 @@ class XBee(object):
                         self.read_work_status_chatter(msg)
                     ### Transmitted Task List, recieve list of active tasks from the coordinator
                     elif tp == 't':
-                        rospy.loginfo("got task list msg: " + msg)
+                        #rospy.loginfo("got task list msg: " + msg)
                         self.read_task_list_chatter(msg)
                     ### Message was for agent
                     elif tp == 'l' or tp == 'w' or tp == 'r':
-                        rospy.loginfo("Xbee_Bridge::Agent got ground station message: " + tp)
+                        a=7
+                        #rospy.loginfo("Xbee_Bridge::Agent got ground station message: " + tp)
                     ### Message was invalid    
                     else:
                         rospy.logwarn("XBee Bridge::Bad agent Message type: " + tp)
