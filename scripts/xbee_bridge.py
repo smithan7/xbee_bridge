@@ -650,6 +650,9 @@ class XBee(object):
             rospy.logwarn("XBee_Bridge::Failed to broadcast coordination msg")
 
   def check_if_new_coord_msg(self, msg):
+    if msg.agent_index != self.agent_index):
+        return False
+    
     if rospy.Time.now() - self.last_coord_sent_time > self.last_coord_send_dur:
         self.last_coord_sent_time = rospy.Time.now()
         self.old_coord_msg = msg
